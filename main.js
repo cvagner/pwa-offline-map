@@ -1,5 +1,8 @@
 import { registerSW } from 'virtual:pwa-register'
 
+// Pointer events polyfill for old browsers, see https://caniuse.com/#feat=pointer
+import 'elm-pep';
+
 import 'ol/ol.css';
 import Map from 'ol/Map';
 import TileLayer from 'ol/layer/Tile';
