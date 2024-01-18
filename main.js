@@ -129,7 +129,7 @@ const tileGrid = new WMTSTileGrid({
 });
 
 const wmtsSource = new WMTS({
-  url: 'https://wxs.ign.fr/essentiels/geoportail/wmts',
+  url: 'https://data.geopf.fr/wmts',
   layer: 'ORTHOIMAGERY.ORTHOPHOTOS',
   matrixSet: 'PM',
   format: 'image/jpeg',
