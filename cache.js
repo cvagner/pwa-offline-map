@@ -24,7 +24,7 @@ export function clearCache() {
 export function urlsToCache(extent, zoom, wmtsSource) {
   let urls = [];
   let maxZoom = wmtsSource.getTileGrid().getMaxZoom();
-  for (let zoomN=Math.floor(zoom) ; zoomN<=maxZoom ; zoomN++) {
+  for (let zoomN = Math.min(maxZoom, Math.floor(zoom)) ; zoomN<=maxZoom ; zoomN++) {
     wmtsSource.getTileGrid().forEachTileCoord(
       extent,
       parseInt(zoomN),
