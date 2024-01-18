@@ -60,7 +60,7 @@ document.getElementById('load-cache').onclick = function() {
     return;
   }
   let urls = urlsToCache(extent, zoom, wmtsSource);
-  if (urls.length >200 && !confirm(urls.length + ' tuiles seront mises en cache ('
+  if (urls.length <= 0 || !confirm(urls.length + ' tuiles seront mises en cache ('
     + batchAddToCacheDuration(urls) + ' sec avec la fibre environ). Continuer ?')) {
     return;
   }
