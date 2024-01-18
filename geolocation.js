@@ -1,4 +1,3 @@
-import 'ol/ol.css';
 import Feature from 'ol/Feature';
 import Geolocation from 'ol/Geolocation';
 import Point from 'ol/geom/Point';
@@ -6,9 +5,7 @@ import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 import { Vector as VectorSource } from 'ol/source';
 import { Vector as VectorLayer } from 'ol/layer';
 
-let geolocation;
-let accuracyFeature, positionFeature;
-let map;
+let map, geolocation;
 
 export function installGeolocation(theMap) {
   map = theMap;
@@ -23,12 +20,12 @@ export function installGeolocation(theMap) {
   // handle geolocation error.
   geolocation.on('error', (error) => console.log(error.message));
 
-  accuracyFeature = new Feature();
+  let accuracyFeature = new Feature();
   geolocation.on('change:accuracyGeometry', function () {
     accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
   });
 
-  positionFeature = new Feature();
+  let positionFeature = new Feature();
   positionFeature.setStyle(
     new Style({
       image: new CircleStyle({
