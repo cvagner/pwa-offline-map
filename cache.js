@@ -44,8 +44,8 @@ export function loadCache(extent, zoom, wmtsSource) {
 let chunk = 100, secPerChunk = 1;
 
 // Calcul le temps nécessaire à la mise en cache avec une temporisation
-export async function batchAddToCacheDuration(urls) {
-  let secs = Math.ceil(urls.length / chunk) * secPerChunk;
+export function batchAddToCacheDuration(array) {
+  let secs = Math.ceil(array.length / chunk) * secPerChunk;
   return secs;
 }
 
