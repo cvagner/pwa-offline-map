@@ -15,6 +15,7 @@ import {getWidth} from 'ol/extent';
 import './style.css';
 import { onlineOrCacheTileLoadFunction, urlsToCache, batchAddToCacheDuration, batchAddToCache, clearCache } from './cache';
 import { installGeolocation, setGeolocationTracking, centerOnGeolocation } from './geolocation';
+import { installCacheIntersection } from './cache-intersection';
 
 
 // ------------------------------
@@ -38,12 +39,14 @@ const updateSW = registerSW({
 document.querySelector('#app').innerHTML = `
   <h1>Photographies aériennes <span id="status"></span></h1>
   <div class="toolbar">
-    <button id="load-cache" title="du niveau de zoom courant au plus grand">★ Conserver l'étendue</button>
-    <button id="clear-cache">☆ Vider le cache</button>
-    <button id="goto-dijon">❱ Dijon</button>
-
-    <button id="position"><span id="positionIcon">✕</span> Suivre position</button>
-    <button id="center-position">• Centrer</button>
+    <span>Position</span>
+    <button id="position" title="Suivre la position"><span id="positionIcon">✕</span> Suivre</button>
+    <button id="center-position" title="Centrer sur la position">⌖ Centrer</button>
+    <button id="goto-dijon" title="Dijon">🦉 Dijon</button>
+    <br/>
+    <span>Cache</span>
+    <button id="load-cache" title="du niveau de zoom courant au plus grand">★ Carte</button>
+    <button id="clear-cache">☆ Vider</button>
   </div>
   <div id="map" class="map"></div>
 `
@@ -150,3 +153,5 @@ map.addLayer(new TileLayer({
 }));
 
 installGeolocation(map);
+
+installCacheIntersection(map, wmtsSource);
