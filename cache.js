@@ -1,3 +1,41 @@
+export function installCache(map, wmtsSource) {
+  const toolbar = document.getElementsByClassName('toolbar')[0];
+
+  const span = document.createElement('span');
+  span.textContent = 'Cache ';
+  toolbar.appendChild(span);
+
+  const cacheMapBtn = document.createElement('button');
+  cacheMapBtn.id = 'load-cache';
+  cacheMapBtn.title = "du niveau de zoom courant au plus grand";
+  cacheMapBtn.textContent = "★ Carte";
+  toolbar.appendChild(cacheMapBtn);
+
+  cacheMapBtn.onclick = function () {
+    let extent = map.getView().calculateExtent(map.getSize())
+    let zoom = map.getView().getZoom();
+    if (zoom < 15) {
+      alert('Un nombre trop important de tuiles serait mis en cache à cette échelle. Veuillez zoomer');
+      return;
+    }
+    let urls = urlsToCache(extent, zoom, wmtsSource);
+    if (urls.length <= 0 || !confirm(urls.length + ' tuiles seront mises en cache ('
+      + batchAddToCacheDuration(urls) + ' sec avec la fibre environ). Continuer ?')) {
+      return;
+    }
+    batchAddToCache(urls);
+  };
+
+  const emptyCacheBtn = document.createElement('button');
+  emptyCacheBtn.id = 'clear-cache';
+  emptyCacheBtn.title = "le cache de tuiles";
+  emptyCacheBtn.textContent = "☆ Vider";
+  emptyCacheBtn.onclick = clearCache;
+
+  toolbar.appendChild(emptyCacheBtn);
+}
+
+
 // Lecture des tuiles online/offline
 export async function onlineOrCacheTileLoadFunction(imageTile, src) {
   caches.match(src, { cacheName: 'orthophotos' }).then((response) => {

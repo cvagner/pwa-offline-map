@@ -13,8 +13,8 @@ import {fromLonLat, get as getProjection} from 'ol/proj';
 import {getWidth} from 'ol/extent';
 
 import './style.css';
-import { onlineOrCacheTileLoadFunction, urlsToCache, batchAddToCacheDuration, batchAddToCache, clearCache } from './cache';
 import { installGeolocation, setGeolocationTracking, centerOnGeolocation } from './geolocation';
+import { installCache, onlineOrCacheTileLoadFunction } from './cache';
 import { installCacheIntersection } from './cache-intersection';
 
 
@@ -43,35 +43,13 @@ document.querySelector('#app').innerHTML = `
     <button id="position" title="Suivre la position"><span id="positionIcon">✕</span> Suivre</button>
     <button id="center-position" title="Centrer sur la position">⌖ Centrer</button>
     <button id="goto-dijon" title="Dijon">🦉 Dijon</button>
-    <br/>
-    <span>Cache</span>
-    <button id="load-cache" title="du niveau de zoom courant au plus grand">★ Carte</button>
-    <button id="clear-cache">☆ Vider</button>
   </div>
   <div id="map" class="map"></div>
 `
 
-
 // ------------------------------
 // Attach actions
 // ------------------------------
-document.getElementById('load-cache').onclick = function() {
-  let extent = map.getView().calculateExtent(map.getSize())
-  let zoom = map.getView().getZoom();
-  if (zoom < 15) {
-    alert('Un nombre trop important de tuiles serait mis en cache à cette échelle. Veuillez zoomer');
-    return;
-  }
-  let urls = urlsToCache(extent, zoom, wmtsSource);
-  if (urls.length <= 0 || !confirm(urls.length + ' tuiles seront mises en cache ('
-    + batchAddToCacheDuration(urls) + ' sec avec la fibre environ). Continuer ?')) {
-    return;
-  }
-  batchAddToCache(urls);
-};
-
-document.getElementById('clear-cache').onclick = clearCache;
-
 document.getElementById('goto-dijon').onclick = function() {
   // Calculé à partir de la fonction suivante (ajouter window.map = map à la fin de ce fichier)
   // map.getView().calculateExtent(map.getSize())
@@ -154,4 +132,16 @@ map.addLayer(new TileLayer({
 
 installGeolocation(map);
 
+// Séparateur
+const toolbar = document.getElementsByClassName('toolbar')[0];
+toolbar.appendChild(document.createElement('br'));
+
+// Cache sur l'étendue
+installCache(map, wmtsSource);
+
+const span = document.createElement('span');
+span.textContent = ' | '
+toolbar.appendChild(span);
+
+// Cache sur dessin
 installCacheIntersection(map, wmtsSource);

@@ -41,10 +41,8 @@ export function installCacheIntersection(theMap, wmtsSource) {
     tileFeaturesSource.addFeatures(features);
   });
 
+  const toolbar = document.getElementsByClassName('toolbar')[0];
 
-  const span = document.createElement('span');
-  span.textContent = ' | '
-  document.getElementsByClassName('toolbar')[0].appendChild(span);
   // Bouton de dessin
   const drawBtn = document.createElement('button');
   drawBtn.id = 'load-cache-intersecting';
@@ -58,7 +56,7 @@ export function installCacheIntersection(theMap, wmtsSource) {
     draw.setActive(true);
     tileFeaturesSource.clear();
   };
-  document.getElementsByClassName('toolbar')[0].appendChild(drawBtn);
+  toolbar.appendChild(drawBtn);
 
   // Bouton de mise en cache
   const cacheUrlsBtn = document.createElement('button');
@@ -74,7 +72,7 @@ export function installCacheIntersection(theMap, wmtsSource) {
     batchAddToCache(tileFeatureToUrls(features));
     tileFeaturesSource.clear();
   };
-  document.getElementsByClassName('toolbar')[0].appendChild(cacheUrlsBtn);
+  toolbar.appendChild(cacheUrlsBtn);
 
   function manageBtnEnabled() {
     const zoom = map.getView().getZoom();
