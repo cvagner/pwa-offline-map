@@ -5,6 +5,9 @@ import Feature from 'ol/Feature.js';
 import { Vector as VectorSource } from 'ol/source.js';
 import { Vector as VectorLayer } from 'ol/layer.js';
 
+import GeoJSON from 'ol/format/GeoJSON.js';
+import GeometryCollection from 'ol/geom/GeometryCollection.js';
+
 import { batchAddToCache, batchAddToCacheDuration } from './cache';
 
 const MAX_ZOOM = 10;
@@ -40,6 +43,8 @@ export function installCacheIntersection(theMap, wmtsSource) {
     const features = featuresOfTilesToCacheInsersecting(geometry, zoom, wmtsSource);
     tileFeaturesSource.addFeatures(features);
   });
+
+  installFileupload(wmtsSource);
 
   const toolbar = document.getElementsByClassName('toolbar')[0];
 
@@ -121,4 +126,52 @@ export function featuresOfTilesToCacheInsersecting(geometry, zoom, wmtsSource) {
 
 function tileFeatureToUrls(features) {
   return features.map(feature => feature.getProperties().tileUrl);
+}
+
+
+function installFileupload(wmtsSource) {
+  const toolbar = document.getElementsByClassName('toolbar')[0];
+
+  const fileInput = document.createElement('input');
+  fileInput.setAttribute('type', 'file');
+  fileInput.setAttribute('id', 'uploadfile');
+  fileInput.setAttribute('class', 'uploadfile');
+  fileInput.setAttribute('accept', '.geojson');
+  toolbar.appendChild(fileInput);
+
+  const labelFileInput = document.createElement('label');
+  labelFileInput.setAttribute('for', 'uploadfile');
+  labelFileInput.setAttribute('title', 'Téléverser un fichier geojson');
+  labelFileInput.innerHTML ='&nbsp;&nbsp;↥&nbsp;&nbsp;'
+
+  const btn = document.createElement('button');
+  toolbar.appendChild(btn);
+  btn.appendChild(labelFileInput);
+
+  fileInput.addEventListener('change', event => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const geojson = JSON.parse(e.target.result);
+        const format = new GeoJSON();
+        const inputFeatures = format.readFeatures(geojson);
+        const geometries = inputFeatures.map(f => f.getGeometry());
+        const geometry = new GeometryCollection(geometries);
+        const extent = geometry.getExtent();
+
+        // Calcul du zoom sans modifier la vue
+        // const mapSize = map.getSize();
+        // const resolution = map.getView().getResolutionForExtent(extent, mapSize);
+        // const zoom = map.getView().getZoomForResolution(resolution);
+
+        map.getView().fit(extent, {duration : 0.2});
+        const zoom = map.getView().getZoom();
+
+        const features = featuresOfTilesToCacheInsersecting(geometry, zoom, wmtsSource);
+        tileFeaturesSource.addFeatures(features);
+      };
+      reader.readAsText(file);
+    }
+  });
 }
