@@ -151,6 +151,7 @@ function installFileupload(wmtsSource) {
   fileInput.addEventListener('change', event => {
     const file = event.target.files[0];
     if (file) {
+      tileFeaturesSource.clear();
       const reader = new FileReader();
       reader.onload = function (e) {
         const geojson = JSON.parse(e.target.result);
