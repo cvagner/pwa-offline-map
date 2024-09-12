@@ -18,6 +18,7 @@ export default defineConfig({
         short_name: 'Carte déconnectée PWA',
         description: 'Carte déconnectée PWA',
         theme_color: '#ffffff',
+        lang: 'fr',
         icons: [
           {
             src: './pwa-192x192.png',
@@ -33,7 +34,13 @@ export default defineConfig({
             src: './pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable',
+            purpose: 'any',
+          },
+          {
+            src: './pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
           }
         ]
       },
