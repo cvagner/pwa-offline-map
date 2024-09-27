@@ -4,18 +4,19 @@
   "description": "Carte déconnectée PWA",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@vitejs/plugin-legacy": "^1.7.1",
-    "vite": "^2.8.0",
-    "vite-plugin-pwa": "^0.11.13"
+    "@vitejs/plugin-legacy": "^5.4.2",
+    "vite": "^5.4.8",
+    "vite-plugin-pwa": "^0.20.5"
   },
   "dependencies": {
     "elm-pep": "^1.0.6",
-    "ol": "^6.13.0"
+    "ol": "^10.2.1"
   }
 }
