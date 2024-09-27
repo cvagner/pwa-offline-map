@@ -22,27 +22,33 @@ export function installCacheIntersection(theMap, wmtsSource) {
     source: tileFeaturesSource,
   }));
 
-  // Mise en cache par intersection
-  const draw = new Draw({
+  // Mise en cache par intersection avec un dessin
+  const drawLigne = new Draw({
     type: 'LineString',
     stopClick: true,
   });
-  draw.setActive(false);
-  map.addInteraction(draw);
-
-  draw.on('drawend', (event) => {
-    draw.setActive(false);
-    const geometry = event.feature.getGeometry();
-
-    const zoom = map.getView().getZoom();
-    if (zoom < MAX_ZOOM) {
-      alert('Un nombre trop important de tuiles serait mis en cache à cette échelle. Veuillez zoomer');
-      return;
-    }
-
-    const features = featuresOfTilesToCacheInsersecting(geometry, zoom, wmtsSource);
-    tileFeaturesSource.addFeatures(features);
+  const drawPolygone = new Draw({
+    type: 'Polygon',
+    stopClick: true,
   });
+  [drawLigne, drawPolygone].forEach(draw => {
+    draw.setActive(false);
+    map.addInteraction(draw);
+
+    draw.on('drawend', (event) => {
+      draw.setActive(false);
+      const geometry = event.feature.getGeometry();
+
+      const zoom = map.getView().getZoom();
+      if (zoom < MAX_ZOOM) {
+        alert('Un nombre trop important de tuiles serait mis en cache à cette échelle. Veuillez zoomer');
+        return;
+      }
+
+      const features = featuresOfTilesToCacheInsersecting(geometry, zoom, wmtsSource);
+      tileFeaturesSource.addFeatures(features);
+    });
+  })
 
   installFileupload(wmtsSource);
 
@@ -51,16 +57,48 @@ export function installCacheIntersection(theMap, wmtsSource) {
   // Bouton de dessin
   const drawBtn = document.createElement('button');
   drawBtn.id = 'load-cache-intersecting';
-  drawBtn.title = "une ligne pour identifier les tuiles à conserver";
+  drawBtn.title = "une géométrie pour identifier les tuiles à conserver\n[maintenir ⇧ pour un dessin libre ; double clic/tap pour arrêter]";
   drawBtn.textContent = "✐ Dessiner";
+  drawBtn.style.position = 'relative';
+
+  // Options de dessin
+  const optionsContainer = document.createElement('div');
+  optionsContainer.style.position = 'absolute';
+  optionsContainer.style.display = 'none';
+  optionsContainer.style.top = '100%';
+  optionsContainer.style.left = '0';
+  optionsContainer.style.backgroundColor = 'white';
+  optionsContainer.style.border = '1px solid #ccc';
+  optionsContainer.style.padding = '5px';
+  optionsContainer.style.zIndex = '1000';
+
+  // Option "Ligne"
+  const lineOption = document.createElement('button');
+  lineOption.textContent = "Linéaire";
+
+  // Option "Polygone"
+  const polygonOption = document.createElement('button');
+  polygonOption.textContent = "Surface";
+
+  [{opt: lineOption, tool: drawLigne}, {opt: polygonOption, tool: drawPolygone}].forEach(({opt, tool}) => {
+    opt.onclick = function () {
+      if (map.getView().getZoom() < MAX_ZOOM) {
+        alert('Un nombre trop important de tuiles serait mis en cache à cette échelle. Veuillez zoomer');
+        return;
+      }
+      tool.setActive(true);
+      tileFeaturesSource.clear();
+    };
+    optionsContainer.appendChild(opt);
+  });
+
+  drawBtn.appendChild(optionsContainer);
+
   drawBtn.onclick = function () {
-    if (map.getView().getZoom() < MAX_ZOOM) {
-      alert('Un nombre trop important de tuiles serait mis en cache à cette échelle. Veuillez zoomer');
-      return;
-    }
-    draw.setActive(true);
-    tileFeaturesSource.clear();
+    // Inverse l'affichage
+    optionsContainer.style.display = optionsContainer.style.display === 'none' ? 'block' : 'none';
   };
+
   toolbar.appendChild(drawBtn);
 
   // Bouton de mise en cache
@@ -77,17 +115,15 @@ export function installCacheIntersection(theMap, wmtsSource) {
     batchAddToCache(tileFeatureToUrls(features));
     tileFeaturesSource.clear();
   };
+
   toolbar.appendChild(cacheUrlsBtn);
 
   function manageBtnEnabled() {
     const zoom = map.getView().getZoom();
-    cacheUrlsBtn.disabled = drawBtn.disabled = zoom < MAX_ZOOM;
+    cacheUrlsBtn.disabled = drawBtn.disabled = drawLigne.disabled = drawPolygone.disabled = zoom < MAX_ZOOM;
   }
 
-  map.getView().on('change:resolution', event => {
-    const zoom = map.getView().getZoom();
-    cacheUrlsBtn.disabled = drawBtn.disabled = zoom < MAX_ZOOM;
-  })
+  map.getView().on('change:resolution', event => manageBtnEnabled())
   manageBtnEnabled();
 }
 
